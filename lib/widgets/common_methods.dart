@@ -6,8 +6,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-void showNotification(BuildContext context, int id, String? title, String? body) async {
+void showNotification(
+    BuildContext context, int id, String? title, String? body) async {
   final status = await Permission.notification.request();
   if (status != PermissionStatus.granted) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -17,7 +17,8 @@ void showNotification(BuildContext context, int id, String? title, String? body)
   }
 
   final flutterLocalNotificationPlugin = FlutterLocalNotificationsPlugin();
-  const androidInitializationSetting = AndroidInitializationSettings('icon_notif');
+  const androidInitializationSetting =
+      AndroidInitializationSettings('icon_notif');
   const darwinInitializationSetting = DarwinInitializationSettings();
   final initializationSettings = InitializationSettings(
     android: androidInitializationSetting,
@@ -41,7 +42,8 @@ void showNotification(BuildContext context, int id, String? title, String? body)
 }
 
 bool validateEmail(String email) {
-  String pattern = r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$';
+  String pattern =
+      r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$';
   RegExp regExp = RegExp(pattern);
   return regExp.hasMatch(email);
 }
@@ -78,7 +80,8 @@ Future<bool> authenticate(String username, String password) async {
   return false; // Authentication failed
 }
 
-Future<bool> insertion(String username, String password,String fullname ,int phone, String email) async {
+Future<bool> insertion(String username, String password, String fullname,
+    int phone, String email) async {
   final conn = await MySqlConnection.connect(ConnectionSettings(
     host: '103.174.148.69',
     port: 3306,
@@ -90,7 +93,7 @@ Future<bool> insertion(String username, String password,String fullname ,int pho
   try {
     await conn.query(
       'INSERT INTO `user_app_auth` (`username`, `name`, `email`, `phone`, `password`) '
-          'VALUES (?, ?, ?, ?, ?)',
+      'VALUES (?, ?, ?, ?, ?)',
       [username, fullname, email, phone, password],
     );
     await conn.close();
@@ -109,11 +112,10 @@ Future<bool> checkLoginStatus() async {
   String? storedUsername = prefs.getString('username');
   String? storedPassword = prefs.getString('password');
   bool? isLoggedIn = null;
-  if(storedUsername != null && storedPassword != null) {
+  if (storedUsername != null && storedPassword != null) {
     isLoggedIn = true;
-  }
-  else{
-    isLoggedIn= false;
+  } else {
+    isLoggedIn = false;
   }
   return isLoggedIn;
 }
@@ -139,7 +141,8 @@ Future<String?> urlfetch(String uuid) async {
     final storedurl = row['url'];
     return storedurl;
   } else {
-  return null;} // Authentication failed
+    return null;
+  } // Authentication failed
 }
 
 Future<String?> uuidfetch(String uuid) async {
@@ -155,15 +158,17 @@ Future<String?> uuidfetch(String uuid) async {
     'SELECT uuid FROM `ble_beacons`',
   );
 
-
   if (results.isNotEmpty) {
     for (var row in results) {
       final storedUuid = row['uuid'] as String;
       if (storedUuid == uuid) {
         await conn.close();
         return storedUuid; // UUID found in the database
-      }else{return null;}
+      } else {
+        return null;
+      }
     }
-  }else{
-  return null; // UUID not found in the database
-}}
+  } else {
+    return null; // UUID not found in the database
+  }
+}

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -16,7 +17,7 @@ class BluetoothScanner extends StatefulWidget {
 class _BluetoothScannerState extends State<BluetoothScanner> {
   final FlutterBluePlus _flutterBlue = FlutterBluePlus.instance;
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
   final List<ScanResult> _devicesList = [];
 
@@ -30,17 +31,11 @@ class _BluetoothScannerState extends State<BluetoothScanner> {
         _devicesList.add(scanResult);
       });
 
-      final fetchedUuid = await uuidfetch(scanResult.advertisementData.serviceUuids.first.toString());
-
-      if (fetchedUuid != null && scanResult.advertisementData.serviceUuids.first.toString() == fetchedUuid) {
-        final fetchedUrl = await urlfetch(scanResult.advertisementData.serviceUuids.toString());
-        showNotification(
+      showNotification(
           context,
           1,
-          "Proximity Marketing",
-          fetchedUrl ?? '',
-        );
-      }
+          "Alert !!",
+          scanResult.advertisementData.localName);
     });
   }
 
@@ -57,7 +52,6 @@ class _BluetoothScannerState extends State<BluetoothScanner> {
       _devicesList.clear();
     });
     _flutterBlue.stopScan();
-    dispose();
     await Future.delayed(const Duration(seconds: 1));
     _startScan();
   }
@@ -130,7 +124,7 @@ class _BluetoothScannerState extends State<BluetoothScanner> {
                   margin: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 8.0),
                   child: ListTile(
-                    title: Text(_devicesList[index].device.name),
+                    title: Text(_devicesList[index].device.name ?? ''),
                     subtitle: Text(uuidString),
                     trailing: Text("rssi: ${_devicesList[index].rssi} dB"),
                     onTap: () {
@@ -138,51 +132,34 @@ class _BluetoothScannerState extends State<BluetoothScanner> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text(_devicesList[index].device.name),
+                            title: Text(_devicesList[index].device.name ?? ''),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text(
-                                    'Mac ID: ${_devicesList[index].device.id}'),
+                                Text('Mac ID: ${_devicesList[index].device.id}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'Type: ${_devicesList[index].device.type}'),
+                                Text('Type: ${_devicesList[index].device.type}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'Local Name: ${_devicesList[index].advertisementData.localName}'),
+                                Text('Local Name: ${_devicesList[index].advertisementData.localName}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'Manufacturer Data: ${uuidString.toUpperCase()}'),
+                                Text('Manufacturer Data: ${uuidString.toUpperCase()}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'Service UUIDs: ${_devicesList[index].advertisementData.serviceUuids.toString()}'),
+                                Text('Service UUIDs: ${_devicesList[index].advertisementData.serviceUuids.toString()}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'RSSI: ${_devicesList[index].rssi.toString()}'),
+                                Text('RSSI: ${_devicesList[index].rssi.toString()}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'TX Power Level: ${_devicesList[index].advertisementData.txPowerLevel?.toString() ?? "N/A"}'),
+                                Text('TX Power Level: ${_devicesList[index].advertisementData.txPowerLevel?.toString() ?? "N/A"}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'MTU: _${_devicesList[index].device.mtu}'),
+                                Text('MTU: _${_devicesList[index].device.mtu}'),
                                 const SizedBox(height: 8),
-                                Text(
-                                    'Services: _${_devicesList[index].device.services}'),
+                                Text('Services: _${_devicesList[index].device.services}'),
                                 const SizedBox(height: 8),
                                 const Text('Advertisement:'),
                                 const SizedBox(height: 8),
-                                if (_devicesList[index]
-                                        .advertisementData
-                                        .serviceUuids[0] ==
-                                    "0000fef5-0000-1000-8000-00805f9b34fb")
-                                  Image.network(
-                                    'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif',
-                                  ),
-                                if (_devicesList[index]
-                                        .advertisementData
-                                        .serviceUuids[0] !=
-                                    "0000fef5-0000-1000-8000-00805f9b34fb")
+                                if (_devicesList[index].advertisementData.serviceUuids.isNotEmpty && _devicesList[index].advertisementData.serviceUuids[0] == "0000fef5-0000-1000-8000-00805f9b34fb")
+                                  Image.network('https://docs.flutter.dev/assets/images/dash/dash-fainting.gif'),
+                                if (_devicesList[index].advertisementData.serviceUuids.isEmpty || _devicesList[index].advertisementData.serviceUuids[0] != "0000fef5-0000-1000-8000-00805f9b34fb")
                                   const Text('No data'),
                               ],
                             ),
